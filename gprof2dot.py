@@ -3029,10 +3029,13 @@ class Theme:
 
         # Hard-modified for WeDoLow colors
         if weight < 0.33:
-            return (1.0, 0.250980392, 0.435294118)
-        if weight < 0.66:
+            # return (1.0, 0.250980392, 0.435294118)
             return (0.756862745, 0.898039216, 0.117647059)
-        return (0.0, 0.784313725, 0.670588235)
+        if weight < 0.66:
+            # return (0.756862745, 0.898039216, 0.117647059)
+            return (1.0, 0.815686275, 0.345098039)
+        # return (0.0, 0.784313725, 0.670588235)
+        return (0.937254902, 0.419607843, 0.419607843)
 
     def hsl_to_rgb(self, h, s, l):
         """Convert a color from HSL color-model to RGB.
