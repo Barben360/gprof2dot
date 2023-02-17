@@ -3027,22 +3027,12 @@ class Theme:
     def color(self, weight):
         weight = min(max(weight, 0.0), 1.0)
 
-        hmin, smin, lmin = self.mincolor
-        hmax, smax, lmax = self.maxcolor
-
-        if self.skew < 0:
-            raise ValueError("Skew must be greater than 0")
-        elif self.skew == 1.0:
-            h = hmin + weight*(hmax - hmin)
-            s = smin + weight*(smax - smin)
-            l = lmin + weight*(lmax - lmin)
-        else:
-            base = self.skew
-            h = hmin + ((hmax-hmin)*(-1.0 + (base ** weight)) / (base - 1.0))
-            s = smin + ((smax-smin)*(-1.0 + (base ** weight)) / (base - 1.0))
-            l = lmin + ((lmax-lmin)*(-1.0 + (base ** weight)) / (base - 1.0))
-
-        return self.hsl_to_rgb(h, s, l)
+        # Hard-modified for WeDoLow colors
+        if weight < 0.33:
+            return (1.0, 0.250980392, 0.435294118)
+        if weight < 0.66:
+            return (0.756862745, 0.898039216, 0.117647059)
+        return (0.0, 0.784313725, 0.670588235)
 
     def hsl_to_rgb(self, h, s, l):
         """Convert a color from HSL color-model to RGB.
@@ -3122,13 +3112,15 @@ PRINT_COLORMAP = Theme(
     maxpenwidth = 8.0,
 )
 
+WEDOLOW_COLORMAP = Theme(
+    fontcolor="black",
+    minfontsize = 18.0,
+    maxfontsize = 24.0,
+)
+
 
 themes = {
-    "color": TEMPERATURE_COLORMAP,
-    "pink": PINK_COLORMAP,
-    "gray": GRAY_COLORMAP,
-    "bw": BW_COLORMAP,
-    "print": PRINT_COLORMAP,
+    "wedolow": WEDOLOW_COLORMAP,
 }
 
 
@@ -3226,7 +3218,8 @@ class DotWriter:
             self.node(function.id,
                 label = label,
                 color = self.color(theme.node_bgcolor(weight)),
-                fontcolor = self.color(theme.node_fgcolor(weight)),
+                # Hard-modified to force black text
+                fontcolor = theme.graph_fontcolor(),
                 fontsize = "%.2f" % theme.node_fontsize(weight),
                 tooltip = function.filename,
             )
@@ -3395,7 +3388,7 @@ def main(argv=sys.argv[1:]):
     optparser.add_option(
         '-c', '--colormap',
         type="choice", choices=themeNames,
-        dest="theme", default="color",
+        dest="theme", default="wedolow",
         help="color map: %s [default: %%default]" % naturalJoin(themeNames))
     optparser.add_option(
         '-s', '--strip',
